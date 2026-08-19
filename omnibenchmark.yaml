@@ -1,0 +1,18 @@
+# OmniBenchmark Module Configuration
+
+entrypoints:
+  pca: pca.R
+
+# Pointed to shared CLI helper code
+templates:
+  repo: https://github.com/omni-scrna/boilerplate
+  ref: main            # the engine lives on boilerplate main
+  lang: r
+
+# Benchmark(s) that this module plugs into; `sync` vendors each one's schema/ dir into
+# src/common/schema/. Tracking the unmerged contract branch for now.
+benchmarks:
+  - name: split-stages
+    repo: https://github.com/omni-scrna/split-stages-plan
+    plan: benchmark_conda.yaml
+    ref: new-stage-naming

@@ -1,0 +1,33 @@
+# OmniBenchmark outputs
+out/
+.snakemake/
+
+# R
+.Rhistory
+.Rapp.history
+.RData
+.Ruserdata
+*.Rproj.user/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# pixi environments
+.pixi/*
+!.pixi/config.toml
+.Rproj.user

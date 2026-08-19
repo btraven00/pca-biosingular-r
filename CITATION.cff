@@ -1,0 +1,31 @@
+cff-version: 1.2.0
+message: "If you use this module in your publication, please cite as below."
+type: software
+title: "PCA (BiocSingular)"
+abstract: |
+  BiocSingular-backed PCA module for omnibenchmark scRNA pipelines
+authors:
+  - family-names: "carrillo"
+    given-names: "ben"
+    email: "ben.uzh@proton.me"
+  - family-names: "Robinson"
+    given-names: "Mark"
+    email: "ben.uzh@proton.me"
+  - family-names: "Koderman"
+    given-names: "Marusa"
+    email: "marusa.koderman@uzh.ch"
+date-released: "2026-08-19"
+version: "0.1.0"
+license: MIT
+url: "https://github.com/omni-scrna/5-pca-biocsingular-r"
+repository-code: "https://github.com/omni-scrna/5-pca-biocsingular-r"
+keywords:
+  - bioinformatics
+  - computational-biology
+  - benchmark
+  - omnibenchmark
+  - module
+references:
+  - title: "omnibenchmark port"
+    type: software
+    url: "https://github.com/scrna-bench/pipelines-r"
