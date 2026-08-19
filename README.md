@@ -21,6 +21,16 @@ pixi run check
 `pixi run check` loads all runtime libraries and prints `OK`. Run it after install to confirm the
 environment is healthy.
 
+## Conda environment export
+
+```sh
+pixi run export-env
+```
+
+Exports the resolved environment to `envs/pca-biocsingular-r.yml`. The environment is named after
+the repo root folder. The file is generated — change `pixi.toml` and re-export rather than editing
+it by hand.
+
 ## Usage
 
 ```sh
