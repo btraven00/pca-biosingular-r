@@ -52,6 +52,26 @@ p <- add_argument(p, "--dense", type = "character", default = "false",
 # the claim under test, and the null cells are what demonstrate it.
 p <- add_argument(p, "--deferred", type = "character", default = "false",
                   help = "defer centering instead of materialising it (true/false)")
+# Randomized-sketch size, --solver random only. RandomParam(...) forwards these to
+# rsvd::rsvd, whose own defaults they restate: p = 10 oversampling, q = 2 power
+# iterations. Pinned and echoed rather than left implicit, because q is the single
+# parameter that decides whether trailing PCs are resolved at all, and comparing
+# two libraries on their respective defaults compares the defaults, not the
+# libraries: scikit-learn's randomized_svd picks n_iter = 7 at these shapes
+# (n_iter="auto" -> 7 when n_components < 0.1 * min(dim)), i.e. 3.5x more.
+#
+# Measured on be1-fixture (2000 x 1715, k=50), mean |cor| vs ExactParam:
+#              PC21-30  PC31-40  PC41-50
+#   q=2, p=10    0.619    0.275    0.115   <- rsvd/BiocSingular default
+#   q=7, p=10    0.994    0.866    0.222   <- matches scanpy's randomized arm
+#   q=7, p=20    0.998    0.954    0.365
+# Seeds do not substitute for q: the error is bias, not zero-mean noise. Over 10
+# seeds at q=2 the median is 0.579 in PC21-30 -- no better than a single run --
+# while the spread runs 0.013 to 0.942.
+p <- add_argument(p, "--oversampling", type = "integer", default = 10L,
+                  help = "randomized: extra sketch columns p (random only)")
+p <- add_argument(p, "--power_iters", type = "integer", default = 2L,
+                  help = "randomized: power iterations q (random only)")
 args <- parse_args(p)                    # argparser's own parser
 
 # logging
@@ -80,13 +100,25 @@ run_pca <- function(X, args) {
 
   deferred <- identical(args$deferred, "true")
   bsparam <- switch(args$solver,
-    random = RandomParam(deferred = deferred),
+    random = RandomParam(deferred = deferred,
+                         p = args$oversampling, q = args$power_iters),
     exact  = ExactParam(deferred = deferred),
     irlba  = IrlbaParam(deferred = deferred),
     stop("unknown solver: ", args$solver)
   )
+  # ExactParam takes no sketch; IrlbaParam's analogue is extra.work, not p/q. Say so
+  # rather than accept a value and drop it -- a run must not report a knob it ignored.
+  if (!identical(args$solver, "random") &&
+      !(identical(args$oversampling, 10L) && identical(args$power_iters, 2L))) {
+    cat(sprintf("WARNING: --oversampling/--power_iters ignored by --solver %s\n",
+                args$solver), file = stderr())
+  }
   cat(sprintf("LOG: centering %s\n",
               if (deferred) "deferred (operator)" else "materialised"))
+  if (identical(args$solver, "random")) {
+    cat(sprintf("LOG: randomized sketch p=%d q=%d\n",
+                args$oversampling, args$power_iters))
+  }
 
   # runSVD expects cells-as-rows; center across genes (i.e. center=TRUE centers columns)
   svd <- runSVD(t(X), k = args$n_components, center = TRUE, BSPARAM = bsparam)
